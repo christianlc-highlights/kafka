@@ -1,0 +1,8 @@
+# https://github.com/banzaicloud/koperator/tree/master/charts/kafka-operator
+---
+
+replicaCount: 3
+alertManager:
+  enable: false
+prometheusMetrics:
+  enabled: True
