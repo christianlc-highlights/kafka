@@ -9,17 +9,14 @@ CRD := https://github.com/banzaicloud/koperator/releases/download/v0.16.0/kafka-
 dist:
 	mkdir $@
 	cp -rf manifest $@
-	cat manifest/kafka.yaml | tee $@/manifest.yaml
 
 install:
-	#kubectl apply -f dist/manifest.yaml -n kafka
-	kubectl create --validate=false -f dist/manifest/crd.yaml ||:
-	helm repo add banzaicloud-stable https://kubernetes-charts.banzaicloud.com
+	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm template -f dist/manifest/values.yaml \
-		kafka-operator \
+		kafka\
 			--create-namespace \
 			--namespace=kafka \
-		banzaicloud-stable/kafka-operator \
+		bitnami/kafka \
 	| tee dist/manifest/generated.yaml
 	kubectl apply \
 		-f dist/manifest/generated.yaml \
@@ -29,9 +26,5 @@ cleandist:
 	rm -rvf dist
 
 clean:
-	kubectl delete -f dist/manifest.yaml ||:
-
-	helm delete kafka-operator ||:
-	kubectl delete -f dist/manifest/crd.yaml ||:
 	kubectl delete -f dist/manifest/generated.yaml
 
