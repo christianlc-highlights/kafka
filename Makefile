@@ -9,6 +9,11 @@ CRD := https://github.com/banzaicloud/koperator/releases/download/v0.16.0/kafka-
 dist:
 	mkdir $@
 	cp -rf manifest $@
+	go mod init github.com/christianlc-highlights/kafka ||:
+	go mod tidy
+
+build: dist
+	go build -o dist/build main.go
 
 install:
 	helm repo add bitnami https://charts.bitnami.com/bitnami
