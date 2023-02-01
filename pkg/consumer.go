@@ -2,22 +2,17 @@ package pkg
 
 import (
 	"time"
-	"strings"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+
 	log "github.com/sirupsen/logrus"
 )
 
 // create and return pointer to kafka consumer
-func Consumer(bootstrap ...string) (*kafka.Consumer, error) {
-  servers := strings.Join(bootstrap[1:], ",")
-  logf := log.WithFields(
-    log.Fields{
-    	"trace": Trace("Consumer", "pkg/consumer"),
-    	"bootstrap": servers,
-    },
-  )
-
+func Consumer(servers string) (*kafka.Consumer, error) {
+  logf := log.WithFields(log.Fields{
+  	"trace": Trace("Consumer", "pkg/consumer"),
+  	"bootstrap": servers,
+  })
   logf.Debug("Enter")
   defer logf.Debug("Exit")
 

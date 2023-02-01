@@ -4,13 +4,18 @@ CRD := https://github.com/banzaicloud/koperator/releases/download/v0.16.0/kafka-
 .ONESHELL:
 
 ## recipe
-@goal: cleandist dist install
+@goal: distclean dist install
 
 dist:
 	mkdir $@
 	cp -rf manifest $@
 	go mod init github.com/christianlc-highlights/kafka ||:
 	go mod tidy
+
+lint:
+	goimports -l .
+	golint ./...
+	go vet ./... ||:
 
 build: dist
 	go build -o dist/build main.go
@@ -27,9 +32,8 @@ install:
 		-f dist/manifest/generated.yaml \
 		-n kafka
 
-cleandist:
+distclean:
 	rm -rvf dist
 
 clean:
 	kubectl delete -f dist/manifest/generated.yaml
-

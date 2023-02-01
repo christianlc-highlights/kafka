@@ -1,15 +1,13 @@
 package pkg
 
 import (
-	"strings"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
 // Create a producer and return pointer to instance
-func Producer(bootstrap ...string) (*kafka.Producer, error) {
-  servers := strings.Join(bootstrap[1:], ",")
+func Producer(servers string) (*kafka.Producer, error) {
   logf := log.WithFields(
     log.Fields{
     	"trace": Trace("Producer", "pkg/producer"),
