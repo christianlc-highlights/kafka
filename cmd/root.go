@@ -1,7 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -9,8 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 )
-
-
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -33,7 +27,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().StringP("bootstrap-server", "b", "localhost:9092", "Comma-separated list of broker addresses")
 	rootCmd.PersistentFlags().StringP("topic", "t", "", "The topic run operation against")
-
+	rootcmd.MarkFlagRequired("topic")
 }
 
 

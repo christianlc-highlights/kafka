@@ -1,4 +1,5 @@
-CRD := https://github.com/banzaicloud/koperator/releases/download/v0.16.0/kafka-operator.crds.yaml
+
+export NAME := $(shell basename "$$PWD" )
 
 .DEFAULT_GOAL := @goal
 .ONESHELL:
@@ -20,7 +21,16 @@ lint:
 build: dist
 	go build -o dist/build main.go
 
-install:
+namespace:
+	kubectl create namespace $(NAME) \
+		--dry-run=client \
+		-oyaml \
+	| kubectl apply -f-
+	kubectl config set-context \
+		--current \
+		--namespace $(NAME)
+
+install: namespace build
 	helm repo add bitnami https://charts.bitnami.com/bitnami
 	helm template -f dist/manifest/values.yaml \
 		kafka\

@@ -1,7 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -90,6 +86,5 @@ var writeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(writeCmd)
-	writeCmd.MarkFlagRequired("topic")
 
 }

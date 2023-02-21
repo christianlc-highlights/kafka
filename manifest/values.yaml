@@ -5,4 +5,4 @@ replicaCount: 3
 alertManager:
   enable: false
 prometheusMetrics:
-  enabled: True
+  enabled: false
