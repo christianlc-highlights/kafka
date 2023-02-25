@@ -24,7 +24,7 @@ var createCmd = &cobra.Command{
 		replicas := pkg.Must(cmd.Flags().GetString("replicas"))
 
 		logf  := log.WithFields(log.Fields{
-	  	"trace": pkg.Trace("readCmd.Run", "cmd/read"),
+	  	"trace": pkg.Trace("createCmd.Run", "cmd/create"),
 	  	"bs": bs,
 	  	"topic": topic,
 	  	"partitions": partitions,
