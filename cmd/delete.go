@@ -5,15 +5,19 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/spf13/cobra"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/christianlc-highlights/kafka/pkg"
+
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "A brief description of your command",
+	Short: "Delete a topic",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := pkg.InterruptContext(context.Background())
 		bs    := pkg.Must(cmd.PersistentFlags().GetString("bootstrap-server"))
@@ -25,16 +29,17 @@ var deleteCmd = &cobra.Command{
 	  })
 	  logf.Debug("Enter")
 	  defer logf.Debug("Exit")
+	  defer stop()
 
-	  p, err := pkg.Producer(bs)
+	  c, err := pkg.Administrator(bs)
 	  if err != nil {
 	  	logf.WithFields(log.Fields{
 	  		"error": err,
-	  	}).Fatal("Failed to create producer")
+	  	}).Fatal("Failed to create administrative client")
 	  }
-	  logf.Info("Created kafka producer")
+	  logf.Info("Created kafka administrative client")
 
-	  if err := pkg.DeleteTopic(p, topic); err != nil {
+	  if err := pkg.DeleteTopic(ctx, c, topic); err != nil {
 	  	logf.WithFields(log.Fields{
 	  		"error": err,
 	  	}).Fatal("Failed to delete topic")
@@ -44,5 +49,5 @@ var deleteCmd = &cobra.Command{
 }
 
 func init() {
-	topic.AddCommand(deleteCmd)
+	topicCmd.AddCommand(deleteCmd)
 }

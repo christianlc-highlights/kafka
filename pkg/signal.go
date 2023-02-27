@@ -2,11 +2,10 @@ package pkg
 
 import (
 	"os"
+	"syscall"
 	"os/signal"
 	c "context"
-	"syscall"
 
-	log "github.com/sirupsen/logrus"
 )
 
 // func /////////////////////////////////////////

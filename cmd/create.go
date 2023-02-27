@@ -5,9 +5,10 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
+	"context"
 
 	"github.com/spf13/cobra"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/christianlc-highlights/kafka/pkg"
 )
@@ -15,13 +16,13 @@ import (
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create a topic partition",
+	Short: "Create a topic",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := pkg.InterruptContext(context.Background())
 		bs    := pkg.Must(cmd.PersistentFlags().GetString("bootstrap-server"))
 		topic := pkg.Must(cmd.PersistentFlags().GetString("topic"))
-		partitions := pkg.Must(cmd.Flags().GetString("partitions"))
-		replicas := pkg.Must(cmd.Flags().GetString("replicas"))
+		partitions := pkg.Must(cmd.Flags().GetInt("partitions"))
+		replicas := pkg.Must(cmd.Flags().GetInt("replicas"))
 
 		logf  := log.WithFields(log.Fields{
 	  	"trace": pkg.Trace("createCmd.Run", "cmd/create"),
@@ -32,6 +33,7 @@ var createCmd = &cobra.Command{
 	  })
 	  logf.Debug("Enter")
 	  defer logf.Debug("Exit")
+	  defer stop()
 
 	  // create administrator client to kafka using bootstrap
 	  // servers passed as a required flag to this cmd
@@ -43,7 +45,7 @@ var createCmd = &cobra.Command{
 	  }
 	  logf.Debug("Created administrative client")
 
-	  err := pkg.CreateTopic(
+	  err = pkg.CreateTopic(
 	  	ctx,
 	  	admin,
 	  	topic,
@@ -61,9 +63,9 @@ var createCmd = &cobra.Command{
 }
 
 func init() {
-	topic.AddCommand(createCmd)
+	topicCmd.AddCommand(createCmd)
 	createCmd.Flags().IntP("partitions", "p", 1, "Number of partitions")
-	createCmd.Flags().IntP("replicas", "r", 1, "Number of replicas")
+	createCmd.Flags().IntP("replication-factor", "r", 1, "Number of replicas")
 
 	// Here you will define your flags and configuration settings.
 

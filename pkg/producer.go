@@ -32,12 +32,3 @@ func Write(p *kafka.Producer, topic, payload string) error {
 	)
 
 }
-
-// Send a delete request to broker through producer instance
-func DeleteTopic(p *kafka.Producer, topic string) error {
-	_, err := p.DeleteTopics(&kafka.DeleteTopicsRequest{
-	  Topics: []string{topic},
-	  Timeout: 10 * time.Second,
-	})
-	return err
-}
