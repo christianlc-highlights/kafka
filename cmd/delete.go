@@ -20,8 +20,8 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a topic",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := pkg.InterruptContext(context.Background())
-		bs    := pkg.Must(cmd.PersistentFlags().GetString("bootstrap-server"))
-		topic := pkg.Must(cmd.PersistentFlags().GetString("topic"))
+		bs    := pkg.Must(cmd.Flags().GetString("bootstrap-server"))
+		topic := pkg.Must(cmd.Flags().GetString("topic"))
 		logf  := log.WithFields(log.Fields{
 	  	"trace": pkg.Trace("deleteCmd.Run", "cmd/delete"),
 	  	"bs": bs,

@@ -19,10 +19,10 @@ var createCmd = &cobra.Command{
 	Short: "Create a topic",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := pkg.InterruptContext(context.Background())
-		bs    := pkg.Must(cmd.PersistentFlags().GetString("bootstrap-server"))
-		topic := pkg.Must(cmd.PersistentFlags().GetString("topic"))
+		bs    := pkg.Must(cmd.Flags().GetString("bootstrap-server"))
+		topic := pkg.Must(cmd.Flags().GetString("topic"))
 		partitions := pkg.Must(cmd.Flags().GetInt("partitions"))
-		replicas := pkg.Must(cmd.Flags().GetInt("replicas"))
+		replicas := pkg.Must(cmd.Flags().GetInt("replication-factor"))
 
 		logf  := log.WithFields(log.Fields{
 	  	"trace": pkg.Trace("createCmd.Run", "cmd/create"),
