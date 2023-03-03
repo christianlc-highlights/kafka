@@ -1,11 +1,13 @@
 
 export NAME := $(shell basename "$$PWD" )
+export ORG := christianelsee
+sha := $(shell git rev-parse --short HEAD)
 
 .DEFAULT_GOAL := @goal
 .ONESHELL:
 
 ## recipe
-@goal: distclean dist install
+@goal: distclean dist build
 
 dist:
 	mkdir $@
@@ -19,7 +21,11 @@ lint:
 	go vet ./... ||:
 
 build: dist
-	go build -o dist/build main.go
+	docker build \
+		-t local/$(NAME) \
+		-t docker.io/$(ORG)/$(NAME) \
+		-t docker.io/$(ORG)/$(NAME):$(sha) \
+		.
 
 namespace:
 	kubectl create namespace $(NAME) \
@@ -30,17 +36,25 @@ namespace:
 		--current \
 		--namespace $(NAME)
 
-install: namespace build
+install: namespace
+	<secrets/docker.io.token.gpg gpg -d \
+		| xargs -- \
+			docker login \
+				-u $(ORG) \
+				-p
+	docker push docker.io/$(ORG)/$(NAME):$(sha)
+
 	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm repo update
 	helm template -f dist/manifest/values.yaml \
-		kafka\
+		kafka \
 			--create-namespace \
-			--namespace=kafka \
-		bitnami/kafka \
+			--namespace=$(NAME) \
+		bitnami/$(NAME) \
 	| tee dist/manifest/generated.yaml
 	kubectl apply \
 		-f dist/manifest/generated.yaml \
-		-n kafka
+		-n $(NAME)
 
 distclean:
 	rm -rvf dist

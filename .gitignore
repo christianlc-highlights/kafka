@@ -14,3 +14,6 @@
 !key.pub
 !key.gpg
 !README.md
+!Dockerfile
+!.dockerignore
+!docker.io.token.gpg
