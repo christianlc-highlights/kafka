@@ -1,7 +1,9 @@
 
 export NAME := $(shell basename "$$PWD" )
 export ORG := christianelsee
-sha := $(shell git rev-parse --short HEAD)
+export SHA := $(shell git rev-parse --short HEAD)
+export TS  := $(shell date +%s)
+
 
 .DEFAULT_GOAL := @goal
 .ONESHELL:
@@ -11,9 +13,20 @@ sha := $(shell git rev-parse --short HEAD)
 
 dist:
 	mkdir $@
-	cp -rf manifest $@
 	go mod init github.com/christianlc-highlights/kafka ||:
 	go mod tidy
+
+	cat manifest/cli.yaml \
+		| envsubst \
+		| tee $@/manifest.yaml
+	helm repo add bitnami https://charts.bitnami.com/bitnami
+	helm repo update
+	helm template -f helm/values.yaml \
+		$(NAME) \
+			--create-namespace \
+			--namespace=$(NAME) \
+		bitnami/$(NAME) \
+	| tee -a $@/manifest.yaml
 
 lint:
 	goimports -l .
@@ -24,7 +37,7 @@ build: dist
 	docker build \
 		-t local/$(NAME) \
 		-t docker.io/$(ORG)/$(NAME) \
-		-t docker.io/$(ORG)/$(NAME):$(sha) \
+		-t docker.io/$(ORG)/$(NAME):$(SHA) \
 		.
 
 namespace:
@@ -42,18 +55,9 @@ install: namespace
 			docker login \
 				-u $(ORG) \
 				-p
-	docker push docker.io/$(ORG)/$(NAME):$(sha)
-
-	helm repo add bitnami https://charts.bitnami.com/bitnami
-	helm repo update
-	helm template -f dist/manifest/values.yaml \
-		kafka \
-			--create-namespace \
-			--namespace=$(NAME) \
-		bitnami/$(NAME) \
-	| tee dist/manifest/generated.yaml
+	docker push docker.io/$(ORG)/$(NAME):$(SHA)
 	kubectl apply \
-		-f dist/manifest/generated.yaml \
+		-f dist/manifest.yaml \
 		-n $(NAME)
 
 distclean:

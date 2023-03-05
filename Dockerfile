@@ -13,7 +13,7 @@ RUN go build -v -o ./target main.go
 #################################################
 FROM debian:bullseye-slim
 
-COPY --from=build /usr/src/app/target /target
+COPY --from=build /usr/src/app/target /usr/local/bin/kafka
 
 ENTRYPOINT [ "/target" ]
 CMD [ "-h" ]

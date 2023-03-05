@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cli
+  labels:
+    app.kubernetes.io/name: cli
+    app.kubernetes.io/instance: "cli.${SHA}"
+    app.kubernetes.io/version: "${SHA}"
+    app.kubernetes.io/component: sandbox
+    app.kubernetes.io/part-of: "${NAME}"
+    app.kubernetes.io/managed-by: none
+  annotations:
+    app.kubernetes.io/timestamp: "${TS}"
+spec:
+  progressDeadlineSeconds: 10
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cli
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cli
+    spec:
+      containers:
+        - name: cli
+          image: docker.io/${ORG}/${NAME}:${SHA}
+          command:
+            - sh
+            - -c
+          args:
+            - "sleep inf"
