@@ -5,6 +5,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"context"
 
 	"github.com/spf13/cobra"
@@ -14,18 +15,15 @@ import (
 
 )
 
-// deleteCmd represents the delete command
-var deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "Delete a topic",
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List topics",
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx, stop := pkg.InterruptContext(context.Background())
 		bs    := pkg.Must(cmd.Flags().GetString("bootstrap-server"))
-		topic := pkg.Must(cmd.Flags().GetString("topic"))
 		logf  := log.WithFields(log.Fields{
-	  	"trace": pkg.Trace("deleteCmd.Run", "cmd/delete"),
+	  	"trace": pkg.Trace("listCmd.Run", "cmd/list"),
 	  	"bs": bs,
-	  	"topic": topic,
 	  })
 	  logf.Debug("Enter")
 	  defer logf.Debug("Exit")
@@ -37,17 +35,25 @@ var deleteCmd = &cobra.Command{
 	  		"error": err,
 	  	}).Fatal("Failed to create administrative client")
 	  }
-	  logf.Info("Created kafka administrative client")
+	  logf.Info("Created administrative client")
 
-	  if err := pkg.DeleteTopic(ctx, admin, topic); err != nil {
+	  topics, err := pkg.ListTopics(ctx, admin)
+	  if err != nil {
 	  	logf.WithFields(log.Fields{
 	  		"error": err,
-	  	}).Fatal("Failed to delete topic")
+	  	}).Fatal("Failed to list topics")
 	  }
-	  logf.Info("Deleted topic")
+
+	  for _, v := range topics {
+	  	logf.WithFields(log.Fields{
+	  		"topic": v,
+	  	}).Debug("Iterate topic")
+	  	fmt.Println(v)
+	  }
 	},
 }
 
 func init() {
-	topicCmd.AddCommand(deleteCmd)
+	topicCmd.AddCommand(listCmd)
+	listCmd.Flags().MarkHidden("topic")
 }

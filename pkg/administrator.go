@@ -3,8 +3,8 @@ package pkg
 import (
 	"time"
 	"context"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -70,4 +70,75 @@ func DeleteTopic(ctx context.Context, a *kafka.AdminClient, topic string) error 
 	})
 
 	return err
+}
+
+// List all topics currently defined in cluster
+func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
+	var result []string
+	var pollerr error
+
+	ever  := true
+	datch := make(chan string)
+	errch := make(chan error)
+  logf := log.WithFields(log.Fields{
+  	"trace": Trace("ListTopics", "pkg/adminstrator"),
+  	"task": "Retrieve topics",
+  })
+  logf.Debug("Enter")
+  defer logf.Debug("Exit")
+
+  go func() {
+  	logf := logf.WithFields(log.Fields{
+  		"thread": true,
+  	})
+  	logf.Info("Start retrieve topics")
+  	defer logf.Debug("Stop retrieve topics")
+
+  	m, err := a.GetMetadata(nil, true, 0)
+  	if err == nil {
+  		logf.Info("Succeeded retrieving metadata")
+
+  		for k, v := range m.Topics {
+  			logf.WithFields(log.Fields{
+  				"key": k,
+  				"topic": v.Topic,
+  			}).Debug("Iterate metadata")
+  			datch <-v.Topic
+  		}
+  	}
+
+  	close(datch)
+  	close(errch)
+  }()
+
+  logf.Debug("Begin polling topic")
+  for ever {
+  	logf.Debug("Iterate polling topic")
+
+	  select {
+	  case t, ok := <-datch:
+  		logf.WithFields(log.Fields{
+	  		"topic": t,
+	  		"ok": ok,
+	  	}).Debug("Read topic")
+
+	  	if ok {
+		  	logf.WithFields(log.Fields{
+		  		"topic": t,
+		  	}).Info("Append topic")
+	  		result = append(result, t)
+	  	}
+	  	ever = ok
+
+	  case pollerr = <-errch:
+	  	logf.Info("Error polling topic")
+	  	ever = false
+	  case <-ctx.Done():
+	  	logf.Info("Context cancelled")
+	  	ever = false
+	  }
+	}
+	logf.Debug("End polling topic")
+
+	return result, pollerr
 }
