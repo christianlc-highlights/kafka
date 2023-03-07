@@ -1,4 +1,3 @@
-
 export NAME := $(shell basename "$$PWD" )
 export ORG := christianelsee
 export SHA := $(shell git rev-parse --short HEAD)
@@ -7,6 +6,7 @@ export TS  := $(shell date +%s)
 
 .DEFAULT_GOAL := @goal
 .ONESHELL:
+.POSIX:
 
 ## recipe
 @goal: distclean dist build
@@ -28,11 +28,6 @@ dist:
 		bitnami/$(NAME) \
 	| tee -a $@/manifest.yaml
 
-lint:
-	goimports -l .
-	golint ./...
-	go vet ./... ||:
-
 build: dist
 	docker build \
 		-t local/$(NAME) \
@@ -49,12 +44,15 @@ namespace:
 		--current \
 		--namespace $(NAME)
 
-install: namespace
+install: build namespace
 	<secrets/docker.io.token.gpg gpg -d \
 		| xargs -- \
 			docker login \
 				-u $(ORG) \
 				-p
+
+	# if push fails, it may be due to docker image
+	# with current sha, not having been built yet
 	docker push docker.io/$(ORG)/$(NAME):$(SHA)
 	kubectl apply \
 		-f dist/manifest.yaml \
@@ -65,3 +63,12 @@ distclean:
 
 clean:
 	kubectl delete -f dist/manifest/generated.yaml
+
+## sanity targets
+lint:
+	goimports -l .
+	golint ./...
+	go vet ./... ||:
+
+local-build:
+	go build -o dist/build main.go

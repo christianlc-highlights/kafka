@@ -78,4 +78,6 @@ var readCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(readCmd)
+	readCmd.PersistentFlags().StringP("topic", "t", "", "The topic to run operation against")
+	readCmd.MarkFlagRequired("topic")
 }

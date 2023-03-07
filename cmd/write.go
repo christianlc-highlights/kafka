@@ -86,5 +86,6 @@ var writeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(writeCmd)
-
+	writeCmd.PersistentFlags().StringP("topic", "t", "", "The topic to run operation against")
+	writeCmd.MarkFlagRequired("topic")
 }

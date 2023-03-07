@@ -52,8 +52,6 @@ var listCmd = &cobra.Command{
 	  }
 	},
 }
-
 func init() {
 	topicCmd.AddCommand(listCmd)
-	listCmd.Flags().MarkHidden("topic")
 }

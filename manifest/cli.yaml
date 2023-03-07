@@ -22,6 +22,8 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: cli
+      annotations:
+        app.kubernetes.io/timestamp: "${TS}"
     spec:
       containers:
         - name: cli

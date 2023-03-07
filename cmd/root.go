@@ -25,9 +25,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringP("bootstrap-server", "b", "localhost:9092", "Comma-separated list of broker addresses")
-	rootCmd.PersistentFlags().StringP("topic", "t", "", "The topic to run operation against")
-	rootCmd.MarkFlagRequired("topic")
+	rootCmd.PersistentFlags().StringP("bootstrap-server", "b", "kafka:9092", "Comma-separated list of broker addresses")
 }
 
 

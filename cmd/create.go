@@ -66,14 +66,6 @@ func init() {
 	topicCmd.AddCommand(createCmd)
 	createCmd.Flags().IntP("partitions", "p", 1, "Number of partitions")
 	createCmd.Flags().IntP("replication-factor", "r", 1, "Number of replicas")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	createCmd.Flags().StringP("topic", "t", "", "The topic to run operation against")
+	createCmd.MarkFlagRequired("topic")
 }

@@ -50,4 +50,6 @@ var deleteCmd = &cobra.Command{
 
 func init() {
 	topicCmd.AddCommand(deleteCmd)
+	deleteCmd.PersistentFlags().StringP("topic", "t", "", "The topic to run operation against")
+	deleteCmd.MarkFlagRequired("topic")
 }
