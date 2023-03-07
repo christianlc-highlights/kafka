@@ -47,7 +47,7 @@ func CreateTopic(ctx context.Context, c *kafka.AdminClient, topic string, partit
     }},
 
     // Admin options
-    kafka.SetAdminOperationTimeout(Must(time.ParseDuration("5s"))),
+    kafka.SetAdminOperationTimeout(Must(time.ParseDuration("60s"))),
   )
   return err
 
@@ -63,11 +63,13 @@ func DeleteTopic(ctx context.Context, a *kafka.AdminClient, topic string) error 
   defer logf.Debug("Exit")
 
 	results, err := a.DeleteTopics(
-		ctx, []string{topic}, nil,
+		ctx,
+		[]string{topic},
+		kafka.SetAdminOperationTimeout(Must(time.ParseDuration("60s"))),
 	)
 	logf.WithFields(log.Fields{
 		"results": results,
-	})
+	}).Debug("Completed delete topic operation")
 
 	return err
 }
@@ -93,8 +95,10 @@ func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
   	})
   	logf.Info("Start retrieve topics")
   	defer logf.Debug("Stop retrieve topics")
+  	defer close(datch)
+  	defer close(errch)
 
-  	m, err := a.GetMetadata(nil, true, 0)
+  	m, err := a.GetMetadata(nil, true, 60000)
   	if err == nil {
   		logf.Info("Succeeded retrieving metadata")
 
@@ -103,12 +107,12 @@ func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
   				"key": k,
   				"topic": v.Topic,
   			}).Debug("Iterate metadata")
-  			datch <-v.Topic
+  			datch<- v.Topic
   		}
+  	} else {
+  		logf.Info("Failed retrieving metadata")
+  		errch<- err
   	}
-
-  	close(datch)
-  	close(errch)
   }()
 
   logf.Debug("Begin polling topic")
@@ -129,9 +133,10 @@ func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
 	  		result = append(result, t)
 	  	}
 	  	ever = ok
-
 	  case pollerr = <-errch:
-	  	logf.Info("Error polling topic")
+	  	logf.WithFields(log.Fields{
+	  		"error": pollerr,
+	  	}).Info("Error polling topic")
 	  	ever = false
 	  case <-ctx.Done():
 	  	logf.Info("Context cancelled")

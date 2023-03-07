@@ -54,6 +54,7 @@ install: build namespace
 	# if push fails, it may be due to docker image
 	# with current sha, not having been built yet
 	docker push docker.io/$(ORG)/$(NAME):$(SHA)
+	docker push docker.io/$(ORG)/$(NAME):latest
 	kubectl apply \
 		-f dist/manifest.yaml \
 		-n $(NAME)

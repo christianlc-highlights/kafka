@@ -43,6 +43,9 @@ var listCmd = &cobra.Command{
 	  		"error": err,
 	  	}).Fatal("Failed to list topics")
 	  }
+	  logf.WithFields(log.Fields{
+	  	"topics": topics,
+	  }).Info("List topics")
 
 	  for _, v := range topics {
 	  	logf.WithFields(log.Fields{

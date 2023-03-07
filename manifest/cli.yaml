@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: cli
-          image: docker.io/${ORG}/${NAME}:${SHA}
+          image: docker.io/${ORG}/${NAME}:latest
           command:
             - sh
             - -c

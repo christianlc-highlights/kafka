@@ -14,6 +14,10 @@ RUN go build -v -o ./target main.go
 FROM debian:bullseye-slim
 
 COPY --from=build /usr/src/app/target /usr/local/bin/kafka
+RUN apt update && \
+  apt install -y --no-install-recommends \
+    netcat \
+    dnsutils
 
 ENTRYPOINT [ "/target" ]
 CMD [ "-h" ]
