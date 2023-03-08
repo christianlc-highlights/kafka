@@ -63,7 +63,7 @@ distclean:
 	rm -rvf dist
 
 clean:
-	kubectl delete -f dist/manifest/generated.yaml
+	kubectl delete -f dist/manifest.yaml
 
 ## sanity targets
 lint:

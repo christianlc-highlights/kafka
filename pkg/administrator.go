@@ -69,23 +69,24 @@ func DeleteTopic(ctx context.Context, a *kafka.AdminClient, topic string) error 
 	)
 	logf.WithFields(log.Fields{
 		"results": results,
-	}).Debug("Completed delete topic operation")
+	}).Debug("Finished delete topic operation")
 
 	return err
 }
 
-// List all topics currently defined in cluster
-func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
+// Get all topics currently defined in cluster
+func GetTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
 	var result []string
 	var pollerr error
 
 	ever  := true
 	datch := make(chan string)
 	errch := make(chan error)
-  logf := log.WithFields(log.Fields{
-  	"trace": Trace("ListTopics", "pkg/adminstrator"),
-  	"task": "Retrieve topics",
+  logf  := log.WithFields(log.Fields{
+  	"trace": Trace("GetTopics", "pkg/adminstrator"),
+  	"task": "Retrieve topics from metadata",
   })
+
   logf.Debug("Enter")
   defer logf.Debug("Exit")
 
@@ -133,11 +134,11 @@ func ListTopics(ctx context.Context, a *kafka.AdminClient) ([]string, error) {
 	  		result = append(result, t)
 	  	}
 	  	ever = ok
+
 	  case pollerr = <-errch:
-	  	logf.WithFields(log.Fields{
-	  		"error": pollerr,
-	  	}).Info("Error polling topic")
+	  	logf.Info("Error polling topic")
 	  	ever = false
+
 	  case <-ctx.Done():
 	  	logf.Info("Context cancelled")
 	  	ever = false

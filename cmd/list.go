@@ -37,20 +37,20 @@ var listCmd = &cobra.Command{
 	  }
 	  logf.Info("Created administrative client")
 
-	  topics, err := pkg.ListTopics(ctx, admin)
+	  topics, err := pkg.GetTopics(ctx, admin)
 	  if err != nil {
 	  	logf.WithFields(log.Fields{
 	  		"error": err,
-	  	}).Fatal("Failed to list topics")
+	  	}).Fatal("Failed to get topics")
 	  }
 	  logf.WithFields(log.Fields{
 	  	"topics": topics,
-	  }).Info("List topics")
+	  }).Info("Succeeded getting topics")
 
 	  for _, v := range topics {
 	  	logf.WithFields(log.Fields{
 	  		"topic": v,
-	  	}).Debug("Iterate topic")
+	  	}).Debug("Iterate listing topic")
 	  	fmt.Println(v)
 	  }
 	},
